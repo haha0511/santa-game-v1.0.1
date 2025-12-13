@@ -1,0 +1,43 @@
+body {
+  margin: 0;
+  background: #87ceeb;
+  font-family: Arial, sans-serif;
+  text-align: center;
+}
+
+#ui {
+  margin: 10px 0;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+#game {
+  position: relative;
+  width: 360px;
+  height: 640px;
+  margin: 0 auto;
+  background: linear-gradient(#87ceeb, #ffffff);
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+#santa {
+  position: absolute;
+  bottom: 10px;
+  width: 80px;
+}
+
+.item {
+  position: absolute;
+  width: 50px;
+}
+
+#controls {
+  margin-top: 10px;
+}
+
+#controls button {
+  width: 100px;
+  height: 60px;
+  font-size: 30px;
+}
