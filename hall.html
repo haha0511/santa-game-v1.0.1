@@ -2,39 +2,20 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>🏆 명예의 전당</title>
+  <title>명예의 전당</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<h2>🏆 명예의 전당</h2>
-<ul id="list"></ul>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import {
-  getFirestore,
-  collection,
-  query,
-  orderBy,
-  getDocs
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  <h2 style="text-align:center">🏆 명예의 전당 🏆</h2>
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCg2XAdcBkgD_fdAjENCxPSOAwhdVf-nNY",
-  authDomain: "santa-game-test.firebaseapp.com",
-  projectId: "santa-game-test",
-};
+  <ul id="ranking" style="width:360px; margin:20px auto; font-size:18px;"></ul>
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+  <div style="text-align:center">
+    <a href="index.html">🎮 게임으로 돌아가기</a>
+  </div>
 
-const q = query(collection(db, "scores"), orderBy("score", "desc"));
-const snap = await getDocs(q);
-
-snap.forEach(d => {
-  const li = document.createElement("li");
-  li.textContent = `${d.data().name} - ${d.data().score}점`;
-  document.getElementById("list").appendChild(li);
-});
-</script>
+  <script src="hall.js"></script>
 </body>
 </html>
