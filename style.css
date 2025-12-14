@@ -34,3 +34,81 @@ img {
   user-select: none;
   pointer-events: none;
 }
+/* ===== 임팩트 효과 ===== */
+
+.effect {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  animation: pop 0.4s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(3);
+    opacity: 0;
+  }
+}
+
+.score-text {
+  position: absolute;
+  font-size: 16px;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 1px 1px 2px #000;
+  animation: floatUp 0.8s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes floatUp {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+}
+/* ===== 폭탄 임팩트 ===== */
+
+.bomb-effect {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(255, 80, 80, 0.8);
+  animation: boom 0.4s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes boom {
+  0% {
+    transform: scale(0.5);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(3);
+    opacity: 0;
+  }
+}
+
+/* 화면 흔들림 */
+.shake {
+  animation: shake 0.2s;
+}
+
+@keyframes shake {
+  0% { transform: translate(0); }
+  25% { transform: translate(-4px, 0); }
+  50% { transform: translate(4px, 0); }
+  75% { transform: translate(-4px, 0); }
+  100% { transform: translate(0); }
+}
