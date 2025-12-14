@@ -1,119 +1,47 @@
 const game = document.getElementById("game");
-const scoreEl = document.getElementById("score");
-const timeEl = document.getElementById("time");
+const santa = document.getElementById("santa");
+const scoreText = document.getElementById("score");
+const timeText = document.getElementById("time");
+const flash = document.getElementById("flash");
 
-// =====================
-// 기본 상태
-// =====================
+let santaX = 150;
 let score = 0;
 let timeLeft = 60;
 let gameOver = false;
 
-// 난이도
-let fallSpeed = 4;
-let spawnGiftTime = 1200;
-let spawnBombTime = 2200;
-let spawnCookieTime = 6000;
+let speed = 2;
+let doubleScore = false;
+let doubleTimer = null;
 
-// =====================
-// 산타
-// =====================
-const santa = document.createElement("img");
-santa.src = "images/santa.png";
-santa.style.width = "80px";
-santa.style.bottom = "10px";
-santa.style.left = "140px";
-game.appendChild(santa);
+let timeItemCount = 0;
+const MAX_TIME_ITEM = 4;
 
-let santaX = 140;
-const moveSpeed = 10;
-
-// =====================
-// 이동
-// =====================
-document.addEventListener("keydown", (e) => {
-  if (gameOver) return;
-
-  if (e.key === "ArrowLeft" || e.key === "a") santaX -= moveSpeed;
-  if (e.key === "ArrowRight" || e.key === "d") santaX += moveSpeed;
-
-  santaX = Math.max(0, Math.min(game.clientWidth - 80, santaX));
+/* 산타 이동 */
+function moveSanta(dx) {
+  santaX += dx;
+  santaX = Math.max(0, Math.min(300, santaX));
   santa.style.left = santaX + "px";
-});
-
-game.addEventListener("touchstart", (e) => {
-  if (gameOver) return;
-
-  const rect = game.getBoundingClientRect();
-  santaX = e.touches[0].clientX - rect.left - 40;
-  santaX = Math.max(0, Math.min(game.clientWidth - 80, santaX));
-  santa.style.left = santaX + "px";
-});
-
-// =====================
-// ✨ 선물/쿠키 임팩트
-// =====================
-function showEffect(x, y, text) {
-  const effect = document.createElement("div");
-  effect.className = "effect";
-  effect.style.left = x + "px";
-  effect.style.top = y + "px";
-  game.appendChild(effect);
-  setTimeout(() => effect.remove(), 400);
-
-  if (text) {
-    const scoreText = document.createElement("div");
-    scoreText.className = "score-text";
-    scoreText.innerText = text;
-    scoreText.style.left = x + "px";
-    scoreText.style.top = y + "px";
-    game.appendChild(scoreText);
-    setTimeout(() => scoreText.remove(), 800);
-  }
 }
 
-// =====================
-// 💣 폭탄 임팩트
-// =====================
-function showBombEffect(x, y) {
-  const boom = document.createElement("div");
-  boom.className = "bomb-effect";
-  boom.style.left = x + "px";
-  boom.style.top = y + "px";
-  game.appendChild(boom);
-  setTimeout(() => boom.remove(), 400);
+document.addEventListener("keydown", e => {
+  if (e.key === "a" || e.key === "ArrowLeft") moveSanta(-20);
+  if (e.key === "d" || e.key === "ArrowRight") moveSanta(20);
+});
 
-  // 화면 흔들림
-  game.classList.add("shake");
-  setTimeout(() => game.classList.remove("shake"), 200);
-}
+game.addEventListener("touchstart", e => {
+  const x = e.touches[0].clientX;
+  moveSanta(x < window.innerWidth / 2 ? -30 : 30);
+});
 
-// =====================
-// 아이템 생성
-// =====================
+/* 아이템 생성 */
 function createItem(type) {
-  const item = document.createElement("img");
-  let scoreValue = 0;
-
-  if (type === "gift") {
-    item.src = "images/gift.png";
-    scoreValue = 10;
-  } else if (type === "bomb") {
-    item.src = "images/bomb.png";
-    scoreValue = -20;
-  } else if (type === "cookie") {
-    item.src = "images/cookie.png";
-    scoreValue = 50;
-  }
-
-  item.style.width = "50px";
-  item.style.top = "0px";
-  item.style.left =
-    Math.random() * (game.clientWidth - 50) + "px";
-
+  const item = document.createElement("div");
+  item.className = "item " + type;
+  item.style.left = Math.random() * 300 + "px";
+  item.style.top = "-40px";
   game.appendChild(item);
 
-  let y = 0;
+  let y = -40;
 
   const fall = setInterval(() => {
     if (gameOver) {
@@ -122,98 +50,99 @@ function createItem(type) {
       return;
     }
 
-    y += fallSpeed;
+    y += speed;
     item.style.top = y + "px";
 
-    const itemRect = item.getBoundingClientRect();
-    const santaRect = santa.getBoundingClientRect();
-
-    if (
-      itemRect.bottom > santaRect.top &&
-      itemRect.left < santaRect.right &&
-      itemRect.right > santaRect.left
-    ) {
-      score += scoreValue;
-      scoreEl.innerText = "점수: " + score;
-
-      const x = item.offsetLeft + 20;
-      const y = item.offsetTop;
-
-      if (scoreValue > 0) {
-        showEffect(x, y, "+" + scoreValue);
-      } else {
-        showBombEffect(x, y);
-      }
-
+    if (y > 340 && Math.abs(parseInt(item.style.left) - santaX) < 40) {
+      applyEffect(type);
+      impact(item.style.left, y);
       clearInterval(fall);
       item.remove();
     }
 
-    if (y > game.clientHeight) {
+    if (y > 400) {
       clearInterval(fall);
       item.remove();
     }
-  }, 20);
+  }, 16);
 }
 
-// =====================
-// 스폰 루프
-// =====================
-function spawnLoop(type) {
-  let interval;
+/* 효과 */
+function applyEffect(type) {
+  let value = 0;
 
-  function start() {
-    interval = setInterval(() => {
-      if (!gameOver) createItem(type);
-    }, getTime());
+  if (type === "gift") value = 10;
+  if (type === "cookie") value = 50;
+  if (type === "bomb") value = -30;
+  if (type === "yami") value = -60;
+
+  if (doubleScore) value *= 2;
+  score += value;
+
+  if (type === "time" && timeItemCount < MAX_TIME_ITEM) {
+    timeLeft += 10;
+    timeItemCount++;
   }
 
-  function getTime() {
-    if (type === "gift") return spawnGiftTime;
-    if (type === "bomb") return spawnBombTime;
-    return spawnCookieTime;
-  }
+  if (type === "star") startDoubleScore();
 
-  start();
-  return () => {
-    clearInterval(interval);
-    start();
-  };
+  scoreText.innerText = score;
 }
 
-let restartGift = spawnLoop("gift");
-let restartBomb = spawnLoop("bomb");
-let restartCookie = spawnLoop("cookie");
+/* 별 이벤트 */
+function startDoubleScore() {
+  doubleScore = true;
+  flash.classList.add("flash-on");
 
-// =====================
-// 난이도 상승
-// =====================
-const difficultyTimer = setInterval(() => {
+  if (doubleTimer) clearTimeout(doubleTimer);
+
+  doubleTimer = setTimeout(() => {
+    doubleScore = false;
+    flash.classList.remove("flash-on");
+  }, 5000);
+}
+
+/* 확률 */
+function spawnItem() {
+  const r = Math.random();
+
+  if (r < 0.45) createItem("gift");
+  else if (r < 0.63) createItem("bomb");
+  else if (r < 0.72) createItem("yami");
+  else if (r < 0.82) createItem("cookie");
+  else if (r < 0.90 && timeItemCount < MAX_TIME_ITEM) createItem("time");
+  else if (r < 0.96) createItem("star");
+}
+
+/* 임팩트 */
+function impact(x, y) {
+  const fx = document.createElement("div");
+  fx.className = "impact";
+  fx.style.left = x;
+  fx.style.top = y + "px";
+  game.appendChild(fx);
+  setTimeout(() => fx.remove(), 300);
+}
+
+/* 타이머 */
+setInterval(() => {
   if (gameOver) return;
-
-  fallSpeed += 0.5;
-  spawnGiftTime = Math.max(400, spawnGiftTime - 150);
-  spawnBombTime = Math.max(700, spawnBombTime - 200);
-  spawnCookieTime = Math.max(3000, spawnCookieTime - 300);
-
-  restartGift();
-  restartBomb();
-  restartCookie();
-}, 10000);
-
-// =====================
-// 타이머
-// =====================
-const timer = setInterval(() => {
-  if (gameOver) return;
-
   timeLeft--;
-  timeEl.innerText = "남은 시간: " + timeLeft + "초";
+  timeText.innerText = timeLeft;
 
   if (timeLeft <= 0) {
     gameOver = true;
     alert("게임 종료!\n점수: " + score);
-    clearInterval(timer);
-    clearInterval(difficultyTimer);
+    location.href = "hall.html";
   }
 }, 1000);
+
+/* 난이도 증가 */
+setInterval(() => {
+  if (speed < 6) speed += 0.3;
+}, 8000);
+
+/* 아이템 반복 */
+setInterval(() => {
+  if (!gameOver) spawnItem();
+}, 700);

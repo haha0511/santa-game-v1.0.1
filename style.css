@@ -1,114 +1,99 @@
-* {
-  box-sizing: border-box;
-}
-
 body {
   margin: 0;
-  background: #ddd;
+  background: #87ceeb;
   font-family: Arial, sans-serif;
+  text-align: center;
 }
 
-/* UI */
+/* 상단 UI */
 #ui {
-  width: 360px;
-  margin: 20px auto 0;
-  display: flex;
-  justify-content: space-between;
-  font-size: 18px;
+  font-size: 16px;
+  padding: 10px;
+  background: #ffffff;
 }
 
-/* 게임 화면 */
+/* ===== 게임 영역 ===== */
 #game {
   position: relative;
-  width: 360px;
-  height: 640px;
-  margin: 10px auto;
-  background: #87ceeb;
-  border: 3px solid #000;
+
+  /* 💡 모바일 대응 핵심 */
+  width: 100%;
+  max-width: 420px;   /* PC에서도 너무 커지지 않게 */
+  aspect-ratio: 9 / 10; /* 세로형 게임 비율 */
+
+  margin: 0 auto;
+  background: linear-gradient(#87ceeb, #ffffff);
   overflow: hidden;
+  border: 2px solid #333;
 }
 
-/* 이미지 공통 */
-img {
+/* ===== 산타 ===== */
+#santa {
   position: absolute;
-  user-select: none;
-  pointer-events: none;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 16%;
+  min-width: 55px;
+  max-width: 70px;
 }
-/* ===== 임팩트 효과 ===== */
 
-.effect {
+/* ===== 아이템 공통 ===== */
+.item {
   position: absolute;
-  width: 10px;
-  height: 10px;
+  width: 11%;
+  min-width: 36px;
+  max-width: 42px;
+  aspect-ratio: 1 / 1;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+/* 아이템 이미지 */
+.gift   { background-image: url("images/gift.png"); }
+.cookie { background-image: url("images/cookie.png"); }
+.bomb   { background-image: url("images/bomb.png"); }
+.time   { background-image: url("images/time.png"); }
+.yami   { background-image: url("images/yami.png"); }
+.star   { background-image: url("images/star.png"); }
+
+/* ===== 먹었을 때 임팩트 ===== */
+.impact {
+  position: absolute;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.9);
-  animation: pop 0.4s ease-out forwards;
-  pointer-events: none;
+  background: yellow;
+  animation: pop 0.3s ease-out;
 }
 
 @keyframes pop {
-  0% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(3);
-    opacity: 0;
-  }
+  from { transform: scale(1); opacity: 1; }
+  to   { transform: scale(2); opacity: 0; }
 }
 
-.score-text {
+/* ===== 별 반짝임 ===== */
+#flash {
   position: absolute;
-  font-size: 16px;
-  font-weight: bold;
-  color: #fff;
-  text-shadow: 1px 1px 2px #000;
-  animation: floatUp 0.8s ease-out forwards;
+  inset: 0;
+  background: rgba(255,255,255,0.7);
+  opacity: 0;
   pointer-events: none;
+  z-index: 10;
 }
 
-@keyframes floatUp {
-  0% {
-    transform: translateY(0);
-    opacity: 1;
+.flash-on {
+  animation: flashEffect 0.4s ease-in-out infinite alternate;
+}
+
+@keyframes flashEffect {
+  from { opacity: 0.1; }
+  to   { opacity: 0.35; }
+}
+
+/* ===== PC에서 조금 더 여유 ===== */
+@media (min-width: 768px) {
+  #ui {
+    font-size: 18px;
   }
-  100% {
-    transform: translateY(-20px);
-    opacity: 0;
-  }
-}
-/* ===== 폭탄 임팩트 ===== */
-
-.bomb-effect {
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: rgba(255, 80, 80, 0.8);
-  animation: boom 0.4s ease-out forwards;
-  pointer-events: none;
-}
-
-@keyframes boom {
-  0% {
-    transform: scale(0.5);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(3);
-    opacity: 0;
-  }
-}
-
-/* 화면 흔들림 */
-.shake {
-  animation: shake 0.2s;
-}
-
-@keyframes shake {
-  0% { transform: translate(0); }
-  25% { transform: translate(-4px, 0); }
-  50% { transform: translate(4px, 0); }
-  75% { transform: translate(-4px, 0); }
-  100% { transform: translate(0); }
 }
