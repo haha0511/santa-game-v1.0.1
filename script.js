@@ -15,11 +15,11 @@ let isGameOver = false;
 
 const MAX_TIME_ITEM = 4;
 
-/* 이동 */
+/* ===== 이동 ===== */
 function moveSanta(dx) {
   if (isGameOver) return;
   santaX += dx;
-  santaX = Math.max(0, Math.min(game.clientWidth - 60, santaX));
+  santaX = Math.max(0, Math.min(game.clientWidth - santa.offsetWidth, santaX));
   santa.style.left = santaX + "px";
 }
 
@@ -33,6 +33,21 @@ document.addEventListener("keydown", e => {
 document.getElementById("left").ontouchstart = () => moveSanta(-25);
 document.getElementById("right").ontouchstart = () => moveSanta(25);
 
+/* ===== 히트박스 판정 (정석) ===== */
+function isColliding(itemEl) {
+  const santaRect = santa.getBoundingClientRect();
+  const itemRect = itemEl.getBoundingClientRect();
+
+  const padding = 6; // 살짝 관대한 판정
+
+  return !(
+    santaRect.right - padding < itemRect.left ||
+    santaRect.left + padding > itemRect.right ||
+    santaRect.bottom - padding < itemRect.top ||
+    santaRect.top + padding > itemRect.bottom
+  );
+}
+
 /* 임팩트 */
 function impact(type) {
   santa.classList.remove("hit", "shake");
@@ -40,7 +55,7 @@ function impact(type) {
   setTimeout(() => santa.classList.remove("hit", "shake"), 300);
 }
 
-/* 아이템 생성 */
+/* ===== 아이템 생성 ===== */
 function spawnItem() {
   if (isGameOver) return;
 
@@ -75,7 +90,7 @@ function spawnItem() {
     y += speed;
     item.style.top = y + "px";
 
-    if (y > game.clientHeight - 110 && Math.abs(x - santaX) < 40) {
+    if (isColliding(item)) {
       applyEffect(type);
       impact(type);
       item.remove();
@@ -89,7 +104,7 @@ function spawnItem() {
   }, 16);
 }
 
-/* 효과 적용 */
+/* ===== 효과 적용 ===== */
 function applyEffect(type) {
   let value = 0;
 
@@ -114,7 +129,7 @@ function applyEffect(type) {
   scoreText.textContent = score;
 }
 
-/* 타이머 */
+/* ===== 타이머 ===== */
 setInterval(() => {
   if (isGameOver) return;
 
