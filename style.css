@@ -1,55 +1,40 @@
-body {
+* {
   margin: 0;
-  background: #87ceeb;
-  font-family: Arial, sans-serif;
-  text-align: center;
+  padding: 0;
+  box-sizing: border-box;
+  touch-action: none;
 }
 
-/* 상단 UI */
-#ui {
-  font-size: 16px;
-  padding: 10px;
-  background: #ffffff;
+body {
+  background: #222;
+  display: flex;
+  justify-content: center;
 }
 
-/* ===== 게임 영역 ===== */
 #game {
   position: relative;
-
-  /* 💡 모바일 대응 핵심 */
   width: 100%;
-  max-width: 420px;   /* PC에서도 너무 커지지 않게 */
-  aspect-ratio: 9 / 10; /* 세로형 게임 비율 */
-
-  margin: 0 auto;
-  background: linear-gradient(#87ceeb, #ffffff);
+  max-width: 420px;
+  height: 90vh;
+  background: linear-gradient(#87ceeb, #e0f7ff);
   overflow: hidden;
-  border: 2px solid #333;
 }
 
-/* ===== 산타 ===== */
 #santa {
   position: absolute;
-  bottom: 0;
+  bottom: 60px;
+  width: 60px;
   left: 50%;
   transform: translateX(-50%);
-  width: 16%;
-  min-width: 55px;
-  max-width: 70px;
 }
 
-/* ===== 아이템 공통 ===== */
 .item {
   position: absolute;
-  width: 11%;
-  min-width: 36px;
-  max-width: 42px;
-  aspect-ratio: 1 / 1;
-  background-size: contain;
-  background-repeat: no-repeat;
+  width: 40px;
+  height: 40px;
+  background-size: cover;
 }
 
-/* 아이템 이미지 */
 .gift   { background-image: url("images/gift.png"); }
 .cookie { background-image: url("images/cookie.png"); }
 .bomb   { background-image: url("images/bomb.png"); }
@@ -57,43 +42,55 @@ body {
 .yami   { background-image: url("images/yami.png"); }
 .star   { background-image: url("images/star.png"); }
 
-/* ===== 먹었을 때 임팩트 ===== */
-.impact {
+#ui {
   position: absolute;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: yellow;
-  animation: pop 0.3s ease-out;
+  top: 10px;
+  left: 10px;
+  font-weight: bold;
 }
 
-@keyframes pop {
-  from { transform: scale(1); opacity: 1; }
-  to   { transform: scale(2); opacity: 0; }
+#controls {
+  position: absolute;
+  bottom: 10px;
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
 }
 
-/* ===== 별 반짝임 ===== */
-#flash {
+#controls button {
+  width: 45%;
+  height: 50px;
+  font-size: 24px;
+}
+
+#gameOver {
   position: absolute;
   inset: 0;
-  background: rgba(255,255,255,0.7);
-  opacity: 0;
-  pointer-events: none;
-  z-index: 10;
+  background: rgba(0,0,0,0.8);
+  color: white;
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
-.flash-on {
-  animation: flashEffect 0.4s ease-in-out infinite alternate;
+/* 임팩트 효과 */
+.hit {
+  animation: pop 0.2s;
+}
+@keyframes pop {
+  0% { transform: translateX(-50%) scale(1); }
+  50% { transform: translateX(-50%) scale(1.3); }
+  100% { transform: translateX(-50%) scale(1); }
 }
 
-@keyframes flashEffect {
-  from { opacity: 0.1; }
-  to   { opacity: 0.35; }
+.shake {
+  animation: shake 0.25s;
 }
-
-/* ===== PC에서 조금 더 여유 ===== */
-@media (min-width: 768px) {
-  #ui {
-    font-size: 18px;
-  }
+@keyframes shake {
+  0% { transform: translateX(-50%); }
+  25% { transform: translateX(-55%); }
+  50% { transform: translateX(-45%); }
+  75% { transform: translateX(-55%); }
+  100% { transform: translateX(-50%); }
 }
