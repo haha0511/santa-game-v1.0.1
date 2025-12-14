@@ -1,134 +1,143 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import {
-  getFirestore,
-  collection,
-  addDoc
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+const game = document.getElementById("game");
+const scoreEl = document.getElementById("score");
+const timeEl = document.getElementById("time");
 
-/* 🔥 Firebase 설정 */
-const firebaseConfig = {
-  apiKey: "AIzaSyCg2XAdcBkgD_fdAjENCxPSOAwhdVf-nNY",
-  authDomain: "santa-game-test.firebaseapp.com",
-  projectId: "santa-game-test",
-  storageBucket: "santa-game-test.firebasestorage.app",
-  messagingSenderId: "769873430252",
-  appId: "1:769873430252:web:1f4de25357ea95b396c7c9"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-/* 🎮 캔버스 */
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
-
-/* 🖼 이미지 */
-const santaImg = new Image();
-santaImg.src = "images/santa.png";
-
-const giftImg = new Image();
-giftImg.src = "images/gift.png";
-
-const bombImg = new Image();
-bombImg.src = "images/bomb.png";
-
-/* 🎅 산타 */
-let santa = { x: 160, y: 560, w: 50, h: 60 };
-
-/* 🎁 오브젝트 */
-let items = [];
+// =====================
+// 기본 상태
+// =====================
 let score = 0;
 let timeLeft = 60;
 let gameOver = false;
 
-/* ⌨️ 키보드 */
-let left = false, right = false;
+// =====================
+// 산타 생성
+// =====================
+const santa = document.createElement("img");
+santa.src = "images/santa.png";
+santa.style.width = "80px";
+santa.style.bottom = "10px";
+santa.style.left = "140px"; // 가운데
+game.appendChild(santa);
 
-document.addEventListener("keydown", e => {
-  if (e.key === "a" || e.key === "ArrowLeft") left = true;
-  if (e.key === "d" || e.key === "ArrowRight") right = true;
-});
-document.addEventListener("keyup", e => {
-  if (e.key === "a" || e.key === "ArrowLeft") left = false;
-  if (e.key === "d" || e.key === "ArrowRight") right = false;
-});
+let santaX = 140;
+const speed = 10;
 
-/* 📱 모바일 터치 */
-canvas.addEventListener("touchstart", e => {
-  const x = e.touches[0].clientX;
-  if (x < window.innerWidth / 2) left = true;
-  else right = true;
-});
-canvas.addEventListener("touchend", () => {
-  left = right = false;
-});
-
-/* 🎁 생성 */
-setInterval(() => {
+// =====================
+// 산타 이동 (키보드)
+// =====================
+document.addEventListener("keydown", (e) => {
   if (gameOver) return;
-  items.push({
-    x: Math.random() * 320,
-    y: -40,
-    type: Math.random() < 0.8 ? "gift" : "bomb"
-  });
-}, 800);
 
-/* ⏱ 타이머 */
-const timer = setInterval(() => {
-  timeLeft--;
-  document.getElementById("time").textContent = timeLeft;
-  if (timeLeft <= 0) endGame();
-}, 1000);
-
-/* 🔚 게임 종료 */
-async function endGame() {
-  if (gameOver) return;
-  gameOver = true;
-  clearInterval(timer);
-
-  const name = prompt("이름을 입력하세요");
-  if (name) {
-    await addDoc(collection(db, "scores"), {
-      name,
-      score,
-      created: Date.now()
-    });
+  if (e.key === "ArrowLeft" || e.key === "a") {
+    santaX -= speed;
   }
-  location.href = "hall.html";
-}
 
-/* 🔁 게임 루프 */
-function loop() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if (e.key === "ArrowRight" || e.key === "d") {
+    santaX += speed;
+  }
 
-  if (left) santa.x -= 5;
-  if (right) santa.x += 5;
-  santa.x = Math.max(0, Math.min(310, santa.x));
+  santaX = Math.max(0, Math.min(game.clientWidth - 80, santaX));
+  santa.style.left = santaX + "px";
+});
 
-  ctx.drawImage(santaImg, santa.x, santa.y, santa.w, santa.h);
+// =====================
+// 모바일 터치 이동
+// =====================
+game.addEventListener("touchstart", (e) => {
+  if (gameOver) return;
 
-  items.forEach((it, i) => {
-    it.y += 4;
+  const rect = game.getBoundingClientRect();
+  const touchX = e.touches[0].clientX - rect.left;
 
-    const hit =
-      it.x < santa.x + santa.w &&
-      it.x + 40 > santa.x &&
-      it.y < santa.y + santa.h &&
-      it.y + 40 > santa.y;
+  santaX = touchX - 40;
+  santaX = Math.max(0, Math.min(game.clientWidth - 80, santaX));
+  santa.style.left = santaX + "px";
+});
 
-    if (hit) {
-      if (it.type === "gift") score += 10;
-      else score -= 20;
-      items.splice(i, 1);
+// =====================
+// 아이템 생성
+// =====================
+function createItem(type) {
+  const item = document.createElement("img");
+
+  if (type === "gift") {
+    item.src = "images/gift.png";
+    item.dataset.type = "gift";
+  } else {
+    item.src = "images/bomb.png";
+    item.dataset.type = "bomb";
+  }
+
+  item.style.width = "50px";
+  item.style.top = "0px";
+  item.style.left =
+    Math.random() * (game.clientWidth - 50) + "px";
+
+  game.appendChild(item);
+
+  let y = 0;
+
+  const fall = setInterval(() => {
+    if (gameOver) {
+      clearInterval(fall);
+      item.remove();
+      return;
     }
 
-    const img = it.type === "gift" ? giftImg : bombImg;
-    ctx.drawImage(img, it.x, it.y, 40, 40);
-  });
+    y += 5;
+    item.style.top = y + "px";
 
-  document.getElementById("score").textContent = score;
+    const itemRect = item.getBoundingClientRect();
+    const santaRect = santa.getBoundingClientRect();
 
-  requestAnimationFrame(loop);
+    // 충돌 판정
+    if (
+      itemRect.bottom > santaRect.top &&
+      itemRect.left < santaRect.right &&
+      itemRect.right > santaRect.left
+    ) {
+      if (item.dataset.type === "gift") {
+        score += 10;
+      } else {
+        score -= 20;
+      }
+
+      scoreEl.innerText = "점수: " + score;
+      clearInterval(fall);
+      item.remove();
+    }
+
+    // 바닥 도달
+    if (y > game.clientHeight) {
+      clearInterval(fall);
+      item.remove();
+    }
+  }, 20);
 }
 
-loop();
+// =====================
+// 아이템 주기
+// =====================
+setInterval(() => {
+  if (!gameOver) createItem("gift");
+}, 1000);
+
+setInterval(() => {
+  if (!gameOver) createItem("bomb");
+}, 2000);
+
+// =====================
+// 타이머
+// =====================
+const timer = setInterval(() => {
+  if (gameOver) return;
+
+  timeLeft--;
+  timeEl.innerText = "남은 시간: " + timeLeft + "초";
+
+  if (timeLeft <= 0) {
+    gameOver = true;
+    alert("게임 종료!\n점수: " + score);
+    clearInterval(timer);
+  }
+}, 1000);

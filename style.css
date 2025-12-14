@@ -1,12 +1,36 @@
-body {
-  margin: 0;
-  text-align: center;
-  background: #cceeff;
-  font-family: sans-serif;
+* {
+  box-sizing: border-box;
 }
 
-canvas {
-  background: linear-gradient(#87ceeb, #ffffff);
-  border: 2px solid #333;
-  max-width: 100%;
+body {
+  margin: 0;
+  background: #ddd;
+  font-family: Arial, sans-serif;
+}
+
+/* UI */
+#ui {
+  width: 360px;
+  margin: 20px auto 0;
+  display: flex;
+  justify-content: space-between;
+  font-size: 18px;
+}
+
+/* 게임 화면 */
+#game {
+  position: relative;
+  width: 360px;
+  height: 640px;
+  margin: 10px auto;
+  background: #87ceeb;
+  border: 3px solid #000;
+  overflow: hidden;
+}
+
+/* 이미지 공통 */
+img {
+  position: absolute;
+  user-select: none;
+  pointer-events: none;
 }

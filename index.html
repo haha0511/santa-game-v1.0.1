@@ -2,19 +2,19 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>🎅 산타 선물 게임</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>Santa Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<h2>🎅 산타 선물 게임</h2>
-<div id="info">
-  ⏱ 남은 시간: <span id="time">60</span>초 |
-  ⭐ 점수: <span id="score">0</span>
-</div>
+  <div id="ui">
+    <div id="score">점수: 0</div>
+    <div id="time">남은 시간: 60초</div>
+  </div>
 
-<canvas id="game" width="360" height="640"></canvas>
+  <div id="game"></div>
 
-<script type="module" src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
