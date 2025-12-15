@@ -3,12 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Santa Game</title>
+  <title>Santa Christmas Game</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div id="game">
+
+  <!-- 🎵 캐럴 BGM -->
+  <audio id="bgm" src="sounds/carol.mp3" loop></audio>
+
+  <!-- 배경 -->
+  <div id="background">
+    <div id="clouds"></div>
+    <div id="trees"></div>
+    <div id="snow"></div>
+  </div>
+
   <img id="santa" src="images/santa.png">
 
   <div id="ui">
@@ -16,7 +27,7 @@
     🎯 <span id="score">0</span>
   </div>
 
-  <!-- 모바일 좌우 버튼 -->
+  <!-- 모바일 버튼 -->
   <div id="controls">
     <button id="left">◀</button>
     <button id="right">▶</button>
@@ -29,6 +40,7 @@
     <h2 id="finalScore">0</h2>
     <button onclick="location.reload()">다시 하기</button>
   </div>
+
 </div>
 
 <script src="script.js"></script>

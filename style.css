@@ -6,33 +6,84 @@
 }
 
 body {
-  background: #222;
+  background: #111;
   display: flex;
   justify-content: center;
 }
 
+/* 게임 영역 */
 #game {
   position: relative;
   width: 100%;
   max-width: 420px;
   height: 90vh;
-  background: linear-gradient(#87ceeb, #e0f7ff);
   overflow: hidden;
+  background: linear-gradient(#1c3b70, #87ceeb);
 }
 
+/* ===== 배경 ===== */
+#background {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* 구름 */
+#clouds {
+  position: absolute;
+  inset: 0;
+  background: url("images/cloud.png") repeat-x;
+  background-size: 200px;
+  animation: cloudMove 60s linear infinite;
+  opacity: 0.7;
+}
+
+@keyframes cloudMove {
+  from { background-position-x: 0; }
+  to { background-position-x: -1000px; }
+}
+
+/* 나무 */
+#trees {
+  position: absolute;
+  bottom: 40px;
+  width: 200%;
+  height: 120px;
+  background: url("images/tree.png") repeat-x;
+  background-size: contain;
+  animation: treeMove 90s linear infinite;
+  opacity: 0.8;
+}
+
+@keyframes treeMove {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* 눈 */
+#snow {
+  position: absolute;
+  inset: 0;
+}
+
+/* ===== 산타 ===== */
 #santa {
   position: absolute;
   bottom: 60px;
   width: 60px;
   left: 50%;
   transform: translateX(-50%);
+  z-index: 3;
 }
 
+/* ===== 아이템 ===== */
 .item {
   position: absolute;
   width: 40px;
   height: 40px;
   background-size: cover;
+  z-index: 2;
 }
 
 .gift   { background-image: url("images/gift.png"); }
@@ -42,19 +93,24 @@ body {
 .yami   { background-image: url("images/yami.png"); }
 .star   { background-image: url("images/star.png"); }
 
+/* UI */
 #ui {
   position: absolute;
   top: 10px;
   left: 10px;
   font-weight: bold;
+  color: white;
+  z-index: 5;
 }
 
+/* 모바일 버튼 */
 #controls {
   position: absolute;
   bottom: 10px;
   width: 100%;
   display: flex;
   justify-content: space-around;
+  z-index: 5;
 }
 
 #controls button {
@@ -63,18 +119,20 @@ body {
   font-size: 24px;
 }
 
+/* 게임 종료 */
 #gameOver {
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0.8);
+  background: rgba(0,0,0,0.85);
   color: white;
   display: none;
+  z-index: 10;
   flex-direction: column;
   justify-content: center;
   align-items: center;
 }
 
-/* 임팩트 효과 */
+/* 임팩트 */
 .hit {
   animation: pop 0.2s;
 }
@@ -93,4 +151,20 @@ body {
   50% { transform: translateX(-45%); }
   75% { transform: translateX(-55%); }
   100% { transform: translateX(-50%); }
+}
+
+/* 눈송이 */
+.snowflake {
+  position: absolute;
+  top: -10px;
+  background: white;
+  border-radius: 50%;
+  opacity: 0.8;
+  animation: fall linear forwards;
+}
+
+@keyframes fall {
+  to {
+    transform: translateY(100vh);
+  }
 }
