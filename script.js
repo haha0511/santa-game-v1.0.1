@@ -91,7 +91,7 @@ function spawnItem(forceType = null) {
     if (r < 0.1) type = "bomb";
     else if (r < 0.18) type = "cookie";
     else if (r < 0.22) type = "yami";
-    else if (r < 0.25) type = "star";
+    else if (r < 0.3) type = "star";
   }
 
   item.classList.add(type);
