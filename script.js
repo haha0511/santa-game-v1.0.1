@@ -16,9 +16,8 @@ document.addEventListener("touchstart", startBGM, { once: true });
 document.addEventListener("mousedown", startBGM, { once: true });
 
 /* ===============================
-   🎮 게임 로직
+   🎮 기본 요소
 ================================ */
-
 const game = document.getElementById("game");
 const santa = document.getElementById("santa");
 const scoreText = document.getElementById("score");
@@ -27,44 +26,41 @@ const gameOver = document.getElementById("gameOver");
 const finalScore = document.getElementById("finalScore");
 const snowLayer = document.getElementById("snow");
 
-let santaX = game.clientWidth / 2;
-let score = 0;
-let timeLeft = 60;
-
-/* 🚀 아이템 낙하 속도 (이전 설정 유지) */
-let speed = 5;
-
-let doubleScore = false;
-let isGameOver = false;
-
-/* 시계 */
-let clockSpawned = 0;
-let extraClockUsed = false;
-let gameStartTime = Date.now();
-
 /* ===============================
-   🏃 산타 이동 (속도만 증가)
+   🏃 산타 이동 (렉 제거 버전)
 ================================ */
+let santaX = game.clientWidth / 2;
+let santaDir = 0; // -1 왼쪽 / 1 오른쪽
+const SANTA_SPEED = 600; // px per second
 
-function moveSanta(dx) {
-  if (isGameOver) return;
-  santaX += dx;
+function updateSanta(dt) {
+  santaX += santaDir * SANTA_SPEED * dt;
   santaX = Math.max(0, Math.min(game.clientWidth - santa.offsetWidth, santaX));
   santa.style.left = santaX + "px";
 }
 
-/* ⌨ PC */
+/* PC 키 입력 */
 document.addEventListener("keydown", e => {
-  if (e.key === "a" || e.key === "ArrowLeft") moveSanta(-35);
-  if (e.key === "d" || e.key === "ArrowRight") moveSanta(35);
+  if (e.key === "a" || e.key === "ArrowLeft") santaDir = -1;
+  if (e.key === "d" || e.key === "ArrowRight") santaDir = 1;
+});
+document.addEventListener("keyup", e => {
+  if (
+    e.key === "a" ||
+    e.key === "ArrowLeft" ||
+    e.key === "d" ||
+    e.key === "ArrowRight"
+  ) santaDir = 0;
 });
 
-/* 📱 모바일 */
-document.getElementById("left").ontouchstart = () => moveSanta(-40);
-document.getElementById("right").ontouchstart = () => moveSanta(40);
+/* 모바일 버튼 */
+document.getElementById("left").ontouchstart = () => santaDir = -1;
+document.getElementById("right").ontouchstart = () => santaDir = 1;
+document.getElementById("left").ontouchend = () => santaDir = 0;
+document.getElementById("right").ontouchend = () => santaDir = 0;
 
 /* ===============================
-   🎯 히트박스 (변경 없음)
+   🎯 히트박스 (유지)
 ================================ */
 function isColliding(item) {
   const s = santa.getBoundingClientRect();
@@ -78,16 +74,21 @@ function isColliding(item) {
   );
 }
 
-/* 임팩트 */
+/* ===============================
+   🎁 아이템
+================================ */
+let speed = 5;
+let score = 0;
+let timeLeft = 60;
+let doubleScore = false;
+let isGameOver = false;
+
 function impact(type) {
   santa.classList.remove("hit", "shake");
   santa.classList.add(type === "bomb" || type === "yami" ? "shake" : "hit");
   setTimeout(() => santa.classList.remove("hit", "shake"), 300);
 }
 
-/* ===============================
-   🎁 아이템 생성
-================================ */
 function spawnItem(forceType = null) {
   if (isGameOver) return;
 
@@ -95,10 +96,8 @@ function spawnItem(forceType = null) {
   item.classList.add("item");
 
   let type;
-
-  if (forceType) {
-    type = forceType;
-  } else {
+  if (forceType) type = forceType;
+  else {
     const r = Math.random();
     if (r < 0.1) type = "bomb";
     else if (r < 0.18) type = "cookie";
@@ -108,12 +107,10 @@ function spawnItem(forceType = null) {
   }
 
   item.classList.add(type);
-
   let x = Math.random() * (game.clientWidth - 40);
   let y = -40;
   item.style.left = x + "px";
   item.style.top = y + "px";
-
   game.appendChild(item);
 
   const fall = setInterval(() => {
@@ -140,12 +137,8 @@ function spawnItem(forceType = null) {
   }, 16);
 }
 
-/* ===============================
-   ✨ 아이템 효과
-================================ */
 function applyEffect(type) {
   let value = 0;
-
   if (type === "gift") value = 10;
   if (type === "cookie") value = 50;
   if (type === "bomb") value = -30;
@@ -154,25 +147,16 @@ function applyEffect(type) {
   if (doubleScore) value *= 2;
   score += value;
 
-  if (type === "time") {
-    timeLeft += 15;
-
-    if (!extraClockUsed && Math.random() < 0.5) {
-      extraClockUsed = true;
-      setTimeout(() => spawnItem("time"), Math.random() * 75000);
-    }
-  }
-
   if (type === "star") {
     doubleScore = true;
-    setTimeout(() => (doubleScore = false), 5000);
+    setTimeout(() => doubleScore = false, 5000);
   }
 
   scoreText.textContent = score;
 }
 
 /* ===============================
-   ⏱ 타이머 & 가속
+   ⏱ 타이머
 ================================ */
 setInterval(() => {
   if (isGameOver) return;
@@ -189,20 +173,9 @@ setInterval(() => {
   if (timeLeft % 10 === 0) speed += 1.5;
 }, 1000);
 
-/* ⏰ 시계 스폰 */
-const clockSchedule = [10, 25, 40, 55];
-
-setInterval(() => {
-  if (isGameOver) return;
-
-  const elapsed = Math.floor((Date.now() - gameStartTime) / 1000);
-  if (clockSpawned < 4 && elapsed >= clockSchedule[clockSpawned]) {
-    spawnItem("time");
-    clockSpawned++;
-  }
-}, 500);
-
-/* ❄ 눈 애니메이션 */
+/* ===============================
+   ❄ 눈
+================================ */
 function createSnow() {
   if (isGameOver) return;
 
@@ -221,3 +194,16 @@ function createSnow() {
 
 setInterval(createSnow, 200);
 setInterval(() => spawnItem(), 650);
+
+/* ===============================
+   🔄 메인 루프 (렉 제거 핵심)
+================================ */
+let last = performance.now();
+function loop(now) {
+  const dt = (now - last) / 1000;
+  last = now;
+
+  if (!isGameOver) updateSanta(dt);
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
