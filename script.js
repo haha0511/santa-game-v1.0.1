@@ -7,7 +7,7 @@ let bgmStarted = false;
 
 function startBGM() {
   if (bgmStarted) return;
-  bgm.volume = 0.35; // 귀 안 아프게
+  bgm.volume = 0.25; // 귀 안 아프게
   bgm.play().catch(() => {});
   bgmStarted = true;
 }
@@ -33,7 +33,7 @@ const snowLayer = document.getElementById("snow");
 let santaX = game.clientWidth / 2;
 let score = 0;
 let timeLeft = 60;
-let speed = 2;
+let speed = 6.5;
 let doubleScore = false;
 let isGameOver = false;
 
@@ -51,18 +51,18 @@ function moveSanta(dx) {
 }
 
 document.addEventListener("keydown", e => {
-  if (e.key === "a" || e.key === "ArrowLeft") moveSanta(-20);
-  if (e.key === "d" || e.key === "ArrowRight") moveSanta(20);
+  if (e.key === "a" || e.key === "ArrowLeft") moveSanta(-25);
+  if (e.key === "d" || e.key === "ArrowRight") moveSanta(25);
 });
 
-document.getElementById("left").ontouchstart = () => moveSanta(-25);
-document.getElementById("right").ontouchstart = () => moveSanta(25);
+document.getElementById("left").ontouchstart = () => moveSanta(-100000);
+document.getElementById("right").ontouchstart = () => moveSanta(100000);
 
 /* 히트박스 */
 function isColliding(item) {
   const s = santa.getBoundingClientRect();
   const i = item.getBoundingClientRect();
-  const p = 6;
+  const p = 7;
   return !(s.right - p < i.left || s.left + p > i.right || s.bottom - p < i.top || s.top + p > i.bottom);
 }
 
@@ -87,10 +87,10 @@ function spawnItem(forceType = null) {
   } else {
     const r = Math.random();
     type = "gift";
-    if (r < 0.1) type = "bomb";
-    else if (r < 0.18) type = "cookie";
-    else if (r < 0.22) type = "yami";
-    else if (r < 0.3) type = "star";
+    if (r < 0.4) type = "bomb";
+    else if (r < 0.2) type = "cookie";
+    else if (r < 0.3) type = "yami";
+    else if (r < 0.322) type = "star";
   }
 
   item.classList.add(type);
