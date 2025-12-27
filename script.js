@@ -52,8 +52,8 @@ document.addEventListener("keydown", e => {
   if (e.key === "d" || e.key === "ArrowRight") moveSanta(20);
 });
 
-document.getElementById("left").ontouchstart = () => moveSanta(-30);
-document.getElementById("right").ontouchstart = () => moveSanta(30);
+document.getElementById("left").ontouchstart = () => moveSanta(-30000);
+document.getElementById("right").ontouchstart = () => moveSanta(30000);
 
 /* 히트박스 */
 function isColliding(item) {
@@ -201,3 +201,4 @@ function createSnow() {
 
 setInterval(createSnow, 200);
 setInterval(() => spawnItem(), 800);
+
