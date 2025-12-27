@@ -27,11 +27,11 @@ const finalScore = document.getElementById("finalScore");
 const snowLayer = document.getElementById("snow");
 
 /* ===============================
-   🏃 산타 이동 (렉 제거 버전)
+   🏃 산타 이동 (렉 제거)
 ================================ */
 let santaX = game.clientWidth / 2;
-let santaDir = 0; // -1 왼쪽 / 1 오른쪽
-const SANTA_SPEED = 600; // px per second
+let santaDir = 0;
+const SANTA_SPEED = 600;
 
 function updateSanta(dt) {
   santaX += santaDir * SANTA_SPEED * dt;
@@ -39,28 +39,24 @@ function updateSanta(dt) {
   santa.style.left = santaX + "px";
 }
 
-/* PC 키 입력 */
 document.addEventListener("keydown", e => {
   if (e.key === "a" || e.key === "ArrowLeft") santaDir = -1;
   if (e.key === "d" || e.key === "ArrowRight") santaDir = 1;
 });
 document.addEventListener("keyup", e => {
   if (
-    e.key === "a" ||
-    e.key === "ArrowLeft" ||
-    e.key === "d" ||
-    e.key === "ArrowRight"
+    e.key === "a" || e.key === "ArrowLeft" ||
+    e.key === "d" || e.key === "ArrowRight"
   ) santaDir = 0;
 });
 
-/* 모바일 버튼 */
 document.getElementById("left").ontouchstart = () => santaDir = -1;
 document.getElementById("right").ontouchstart = () => santaDir = 1;
 document.getElementById("left").ontouchend = () => santaDir = 0;
 document.getElementById("right").ontouchend = () => santaDir = 0;
 
 /* ===============================
-   🎯 히트박스 (유지)
+   🎯 히트박스
 ================================ */
 function isColliding(item) {
   const s = santa.getBoundingClientRect();
@@ -75,7 +71,7 @@ function isColliding(item) {
 }
 
 /* ===============================
-   🎁 아이템
+   🎁 게임 상태
 ================================ */
 let speed = 5;
 let score = 0;
@@ -83,12 +79,18 @@ let timeLeft = 60;
 let doubleScore = false;
 let isGameOver = false;
 
+/* ===============================
+   💥 임팩트
+================================ */
 function impact(type) {
   santa.classList.remove("hit", "shake");
   santa.classList.add(type === "bomb" || type === "yami" ? "shake" : "hit");
   setTimeout(() => santa.classList.remove("hit", "shake"), 300);
 }
 
+/* ===============================
+   🎁 아이템 생성
+================================ */
 function spawnItem(forceType = null) {
   if (isGameOver) return;
 
@@ -96,8 +98,9 @@ function spawnItem(forceType = null) {
   item.classList.add("item");
 
   let type;
-  if (forceType) type = forceType;
-  else {
+  if (forceType) {
+    type = forceType;
+  } else {
     const r = Math.random();
     if (r < 0.1) type = "bomb";
     else if (r < 0.18) type = "cookie";
@@ -107,6 +110,7 @@ function spawnItem(forceType = null) {
   }
 
   item.classList.add(type);
+
   let x = Math.random() * (game.clientWidth - 40);
   let y = -40;
   item.style.left = x + "px";
@@ -137,8 +141,14 @@ function spawnItem(forceType = null) {
   }, 16);
 }
 
+/* ===============================
+   ✨ 아이템 효과
+================================ */
+let extraClockUsed = false;
+
 function applyEffect(type) {
   let value = 0;
+
   if (type === "gift") value = 10;
   if (type === "cookie") value = 50;
   if (type === "bomb") value = -30;
@@ -147,6 +157,20 @@ function applyEffect(type) {
   if (doubleScore) value *= 2;
   score += value;
 
+  /* ⏰ 시계 */
+  if (type === "time") {
+    timeLeft += 15;
+
+    if (!extraClockUsed && Math.random() < 0.5) {
+      extraClockUsed = true;
+      setTimeout(
+        () => spawnItem("time"),
+        Math.random() * 75000
+      );
+    }
+  }
+
+  /* ⭐ 별 */
   if (type === "star") {
     doubleScore = true;
     setTimeout(() => doubleScore = false, 5000);
@@ -174,6 +198,25 @@ setInterval(() => {
 }, 1000);
 
 /* ===============================
+   ⏰ 시계 스폰 (핵심 복구)
+================================ */
+const clockSchedule = [10, 25, 40, 55];
+let clockIndex = 0;
+const gameStartTime = Date.now();
+
+setInterval(() => {
+  if (isGameOver) return;
+
+  const elapsed = Math.floor((Date.now() - gameStartTime) / 1000);
+
+  if (clockIndex < clockSchedule.length &&
+      elapsed >= clockSchedule[clockIndex]) {
+    spawnItem("time");
+    clockIndex++;
+  }
+}, 300);
+
+/* ===============================
    ❄ 눈
 ================================ */
 function createSnow() {
@@ -196,7 +239,7 @@ setInterval(createSnow, 200);
 setInterval(() => spawnItem(), 650);
 
 /* ===============================
-   🔄 메인 루프 (렉 제거 핵심)
+   🔄 메인 루프
 ================================ */
 let last = performance.now();
 function loop(now) {
