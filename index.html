@@ -1,48 +1,39 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Santa Christmas Game</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Santa Catch Game</title>
+
+  <!-- CSS 연결 -->
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
+  <div id="game">
+    <div id="ui">
+      ⏱ <span id="time">60</span>s<br>
+      ⭐ 점수: <span id="score">0</span>
+    </div>
 
-<div id="game">
+    <img id="santa" src="santa.png" />
 
-  <!-- 🎵 캐럴 BGM -->
-  <audio id="bgm" src="sounds/carol.mp3" loop></audio>
+    <!-- 모바일 버튼 -->
+    <div id="leftBtn" class="control">◀</div>
+    <div id="rightBtn" class="control">▶</div>
 
-  <!-- 배경 -->
-  <div id="background">
-    <div id="clouds"></div>
-    <div id="trees"></div>
-    <div id="snow"></div>
+    <!-- 게임 종료 -->
+    <div id="gameOver">
+      <div>🎄 게임 종료 🎄</div>
+      <div id="finalScore"></div>
+      <button onclick="location.reload()">다시하기</button>
+    </div>
   </div>
 
-  <img id="santa" src="images/santa.png">
+  <!-- BGM -->
+  <audio id="bgm" src="bgm.mp3" loop></audio>
 
-  <div id="ui">
-    ⏱ <span id="time">60</span>s |
-    🎯 <span id="score">0</span>
-  </div>
-
-  <!-- 모바일 버튼 -->
-  <div id="controls">
-    <button id="left">◀</button>
-    <button id="right">▶</button>
-  </div>
-
-  <!-- 게임 종료 -->
-  <div id="gameOver">
-    <h1>게임 종료</h1>
-    <p>최종 점수</p>
-    <h2 id="finalScore">0</h2>
-    <button onclick="location.reload()">다시 하기</button>
-  </div>
-
-</div>
-
-<script src="script.js"></script>
+  <!-- JS 연결 (맨 아래!) -->
+  <script src="game.js"></script>
 </body>
 </html>
