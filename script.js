@@ -1,28 +1,24 @@
 /* ===============================
-   🎵 캐럴 BGM (기존 로직 절대 미변경)
+   🎵 캐럴 BGM
 ================================ */
-
 const bgm = document.getElementById("bgm");
 let bgmStarted = false;
 
 function startBGM() {
   if (bgmStarted) return;
-  bgm.volume = 0.35; // 귀 안 아프게
+  bgm.volume = 0.35;
   bgm.play().catch(() => {});
   bgmStarted = true;
 }
 
-/* 최초 입력 시 BGM 시작 */
 document.addEventListener("keydown", startBGM, { once: true });
 document.addEventListener("touchstart", startBGM, { once: true });
 document.addEventListener("mousedown", startBGM, { once: true });
 
 /* ===============================
-   ⬇⬇⬇ 기존 게임 코드 (그대로)
-   ※ 아래는 너가 쓰던 코드와 동일
+   🎮 게임 로직
 ================================ */
 
-// ↓↓↓ 여기부터는 네 기존 script.js 전체 그대로 ↓↓↓
 const game = document.getElementById("game");
 const santa = document.getElementById("santa");
 const scoreText = document.getElementById("score");
@@ -34,13 +30,16 @@ const snowLayer = document.getElementById("snow");
 let santaX = game.clientWidth / 2;
 let score = 0;
 let timeLeft = 60;
-let speed = 2;
+
+/* 🚀 기본 속도 대폭 증가 */
+let speed = 5;
+
 let doubleScore = false;
 let isGameOver = false;
 
-/* ===== 시계 관련 변수 ===== */
-let clockSpawned = 0;          // 이미 나온 시계 수
-let extraClockUsed = false;   // 추가 시계 사용 여부
+/* 시계 */
+let clockSpawned = 0;
+let extraClockUsed = false;
 let gameStartTime = Date.now();
 
 /* 이동 */
@@ -64,7 +63,12 @@ function isColliding(item) {
   const s = santa.getBoundingClientRect();
   const i = item.getBoundingClientRect();
   const p = 6;
-  return !(s.right - p < i.left || s.left + p > i.right || s.bottom - p < i.top || s.top + p > i.bottom);
+  return !(
+    s.right - p < i.left ||
+    s.left + p > i.right ||
+    s.bottom - p < i.top ||
+    s.top + p > i.bottom
+  );
 }
 
 /* 임팩트 */
@@ -74,7 +78,7 @@ function impact(type) {
   setTimeout(() => santa.classList.remove("hit", "shake"), 300);
 }
 
-/* ===== 아이템 생성 ===== */
+/* 아이템 생성 */
 function spawnItem(forceType = null) {
   if (isGameOver) return;
 
@@ -87,11 +91,11 @@ function spawnItem(forceType = null) {
     type = forceType;
   } else {
     const r = Math.random();
-    type = "gift";
     if (r < 0.1) type = "bomb";
     else if (r < 0.18) type = "cookie";
     else if (r < 0.22) type = "yami";
-    else if (r < 0.3) type = "star";
+    else if (r < 0.295) type = "star";
+    else type = "gift";
   }
 
   item.classList.add(type);
@@ -110,6 +114,7 @@ function spawnItem(forceType = null) {
       return;
     }
 
+    /* 🚀 초고속 낙하 */
     y += speed;
     item.style.top = y + "px";
 
@@ -127,7 +132,7 @@ function spawnItem(forceType = null) {
   }, 16);
 }
 
-/* ===== 효과 ===== */
+/* 효과 */
 function applyEffect(type) {
   let value = 0;
 
@@ -142,24 +147,21 @@ function applyEffect(type) {
   if (type === "time") {
     timeLeft += 15;
 
-    /* ⭐ 시계 먹었을 때 50% 확률 추가 시계 */
     if (!extraClockUsed && Math.random() < 0.5) {
       extraClockUsed = true;
-      setTimeout(() => {
-        spawnItem("time");
-      }, Math.random() * 75000); // 1분 15초 안 랜덤
+      setTimeout(() => spawnItem("time"), Math.random() * 75000);
     }
   }
 
   if (type === "star") {
     doubleScore = true;
-    setTimeout(() => doubleScore = false, 5000);
+    setTimeout(() => (doubleScore = false), 5000);
   }
 
   scoreText.textContent = score;
 }
 
-/* ===== 타이머 ===== */
+/* ⏱ 타이머 + 폭주 가속 */
 setInterval(() => {
   if (isGameOver) return;
 
@@ -172,24 +174,24 @@ setInterval(() => {
     finalScore.textContent = score;
   }
 
-  if (timeLeft % 15 === 0) speed += 0.5;
+  /* 🚀 10초마다 속도 급상승 */
+  if (timeLeft % 10 === 0) speed += 1.5;
 }, 1000);
 
-/* ===== 시계 강제 스폰 시스템 ===== */
-const clockSchedule = [10, 25, 40, 55]; // 1분 안에 무조건 4개
+/* ⏰ 시계 고정 스폰 */
+const clockSchedule = [10, 25, 40, 55];
 
 setInterval(() => {
   if (isGameOver) return;
 
   const elapsed = Math.floor((Date.now() - gameStartTime) / 1000);
-
   if (clockSpawned < 4 && elapsed >= clockSchedule[clockSpawned]) {
     spawnItem("time");
     clockSpawned++;
   }
 }, 500);
 
-/* ===== 눈 ===== */
+/* ❄ 눈 */
 function createSnow() {
   if (isGameOver) return;
 
@@ -207,4 +209,4 @@ function createSnow() {
 }
 
 setInterval(createSnow, 200);
-setInterval(() => spawnItem(), 800);
+setInterval(() => spawnItem(), 650);
