@@ -6,7 +6,7 @@ let bgmStarted = false;
 
 function startBGM() {
   if (bgmStarted) return;
-  bgm.volume = 0.35;
+  bgm.volume = 0.2;
   bgm.play().catch(() => {});
   bgmStarted = true;
 }
@@ -30,7 +30,7 @@ const snowLayer = document.getElementById("snow");
 let santaX = game.clientWidth / 2;
 let score = 0;
 let timeLeft = 60;
-let speed = 2;
+let speed = 6.5;
 let doubleScore = false;
 let isGameOver = false;
 
@@ -52,14 +52,14 @@ document.addEventListener("keydown", e => {
   if (e.key === "d" || e.key === "ArrowRight") moveSanta(20);
 });
 
-document.getElementById("left").ontouchstart = () => moveSanta(-25);
-document.getElementById("right").ontouchstart = () => moveSanta(25);
+document.getElementById("left").ontouchstart = () => moveSanta(-30);
+document.getElementById("right").ontouchstart = () => moveSanta(30);
 
 /* 히트박스 */
 function isColliding(item) {
   const s = santa.getBoundingClientRect();
   const i = item.getBoundingClientRect();
-  const p = 6;
+  const p = 7;
   return !(s.right - p < i.left || s.left + p > i.right || s.bottom - p < i.top || s.top + p > i.bottom);
 }
 
