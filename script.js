@@ -18,8 +18,9 @@ document.addEventListener("touchstart", startBGM, { once: true });
 document.addEventListener("mousedown", startBGM, { once: true });
 
 /* ===============================
-
-
+   ⬇⬇⬇ 기존 게임 코드 (그대로)
+   ※ 아래는 너가 쓰던 코드와 동일
+================================ */
 
 const game = document.getElementById("game");
 const santa = document.getElementById("santa");
