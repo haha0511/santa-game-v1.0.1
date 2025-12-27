@@ -1,99 +1,170 @@
-html, body {
+* {
   margin: 0;
   padding: 0;
-  overflow: hidden;
-  background: #00111f;
-  font-family: Arial, sans-serif;
+  box-sizing: border-box;
+  touch-action: none;
 }
 
+body {
+  background: #111;
+  display: flex;
+  justify-content: center;
+}
+
+/* 게임 영역 */
 #game {
   position: relative;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  max-width: 420px;
+  height: 90vh;
   overflow: hidden;
+  background: linear-gradient(#1c3b70, #87ceeb);
 }
 
-/* 눈 배경 */
-.snow {
+/* ===== 배경 ===== */
+#background {
   position: absolute;
-  top: -10px;
-  color: white;
-  animation: fall linear infinite;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* 구름 */
+#clouds {
+  position: absolute;
+  inset: 0;
+  background: url("images/cloud.png") repeat-x;
+  background-size: 200px;
+  animation: cloudMove 60s linear infinite;
+  opacity: 0.7;
+}
+
+@keyframes cloudMove {
+  from { background-position-x: 0; }
+  to { background-position-x: -1000px; }
+}
+
+/* 나무 */
+#trees {
+  position: absolute;
+  bottom: 40px;
+  width: 200%;
+  height: 120px;
+  background: url("images/tree.png") repeat-x;
+  background-size: contain;
+  animation: treeMove 90s linear infinite;
   opacity: 0.8;
 }
 
-@keyframes fall {
-  to {
-    transform: translateY(110vh);
-  }
+@keyframes treeMove {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
 }
 
-/* 산타 */
+/* 눈 */
+#snow {
+  position: absolute;
+  inset: 0;
+}
+
+/* ===== 산타 ===== */
 #santa {
   position: absolute;
-  bottom: 20px;
-  width: 70px;
+  bottom: 60px;
+  width: 60px;
   left: 50%;
   transform: translateX(-50%);
+  z-index: 3;
 }
 
-/* 아이템 */
+/* ===== 아이템 ===== */
 .item {
   position: absolute;
-  width: 45px;
+  width: 40px;
+  height: 40px;
+  background-size: cover;
+  z-index: 2;
 }
+
+.gift   { background-image: url("images/gift.png"); }
+.cookie { background-image: url("images/cookie.png"); }
+.bomb   { background-image: url("images/bomb.png"); }
+.time   { background-image: url("images/time.png"); }
+.yami   { background-image: url("images/yami.png"); }
+.star   { background-image: url("images/star.png"); }
 
 /* UI */
 #ui {
   position: absolute;
   top: 10px;
   left: 10px;
+  font-weight: bold;
   color: white;
-  font-size: 18px;
-  z-index: 10;
+  z-index: 5;
 }
 
 /* 모바일 버튼 */
-.control {
+#controls {
   position: absolute;
-  bottom: 20px;
-  width: 80px;
-  height: 80px;
-  background: rgba(255,255,255,0.2);
-  color: white;
-  font-size: 40px;
-  border-radius: 50%;
+  bottom: 10px;
+  width: 100%;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  user-select: none;
+  justify-content: space-around;
+  z-index: 5;
 }
 
-#leftBtn { left: 20px; }
-#rightBtn { right: 20px; }
-
-/* 이펙트 */
-.effect {
-  position: absolute;
-  font-size: 20px;
-  animation: pop 0.4s ease-out forwards;
+#controls button {
+  width: 45%;
+  height: 50px;
+  font-size: 24px;
 }
 
-@keyframes pop {
-  from { transform: scale(0.5); opacity: 1; }
-  to { transform: scale(1.3); opacity: 0; }
-}
-
-/* 종료 화면 */
+/* 게임 종료 */
 #gameOver {
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0.8);
+  background: rgba(0,0,0,0.85);
   color: white;
   display: none;
-  align-items: center;
-  justify-content: center;
+  z-index: 10;
   flex-direction: column;
-  font-size: 24px;
-  z-index: 20;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 임팩트 */
+.hit {
+  animation: pop 0.2s;
+}
+@keyframes pop {
+  0% { transform: translateX(-50%) scale(1); }
+  50% { transform: translateX(-50%) scale(1.3); }
+  100% { transform: translateX(-50%) scale(1); }
+}
+
+.shake {
+  animation: shake 0.25s;
+}
+@keyframes shake {
+  0% { transform: translateX(-50%); }
+  25% { transform: translateX(-55%); }
+  50% { transform: translateX(-45%); }
+  75% { transform: translateX(-55%); }
+  100% { transform: translateX(-50%); }
+}
+
+/* 눈송이 */
+.snowflake {
+  position: absolute;
+  top: -10px;
+  background: white;
+  border-radius: 50%;
+  opacity: 0.8;
+  animation: fall linear forwards;
+}
+
+@keyframes fall {
+  to {
+    transform: translateY(100vh);
+  }
 }

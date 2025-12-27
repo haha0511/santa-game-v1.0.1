@@ -1,148 +1,208 @@
+/* ===============================
+   🎵 캐럴 BGM (기존 로직 절대 미변경)
+================================ */
+
+const bgm = document.getElementById("bgm");
+let bgmStarted = false;
+
+function startBGM() {
+  if (bgmStarted) return;
+  bgm.volume = 0.35; // 귀 안 아프게
+  bgm.play().catch(() => {});
+  bgmStarted = true;
+}
+
+/* 최초 입력 시 BGM 시작 */
+document.addEventListener("keydown", startBGM, { once: true });
+document.addEventListener("touchstart", startBGM, { once: true });
+document.addEventListener("mousedown", startBGM, { once: true });
+
+/* ===============================
+
+
+
 const game = document.getElementById("game");
 const santa = document.getElementById("santa");
-const scoreEl = document.getElementById("score");
-const timeEl = document.getElementById("time");
-const bgm = document.getElementById("bgm");
+const scoreText = document.getElementById("score");
+const timeText = document.getElementById("time");
+const gameOver = document.getElementById("gameOver");
+const finalScore = document.getElementById("finalScore");
+const snowLayer = document.getElementById("snow");
 
-let santaX = window.innerWidth / 2 - 35;
-let santaSpeed = 14;
+let santaX = game.clientWidth / 2;
 let score = 0;
-let time = 60;
-let gameRunning = true;
+let timeLeft = 60;
+let speed = 2;
 let doubleScore = false;
+let isGameOver = false;
 
-/* 눈 생성 */
-setInterval(() => {
-  const snow = document.createElement("div");
-  snow.className = "snow";
-  snow.textContent = "❄";
-  snow.style.left = Math.random() * window.innerWidth + "px";
-  snow.style.animationDuration = 3 + Math.random() * 5 + "s";
-  snow.style.fontSize = 8 + Math.random() * 8 + "px";
-  game.appendChild(snow);
-  setTimeout(() => snow.remove(), 8000);
-}, 150);
+/* ===== 시계 관련 변수 ===== */
+let clockSpawned = 0;          // 이미 나온 시계 수
+let extraClockUsed = false;   // 추가 시계 사용 여부
+let gameStartTime = Date.now();
 
-/* 산타 이동 */
-function moveSanta(dir) {
-  santaX += dir * santaSpeed;
-  santaX = Math.max(0, Math.min(window.innerWidth - 70, santaX));
+/* 이동 */
+function moveSanta(dx) {
+  if (isGameOver) return;
+  santaX += dx;
+  santaX = Math.max(0, Math.min(game.clientWidth - santa.offsetWidth, santaX));
   santa.style.left = santaX + "px";
 }
 
-document.getElementById("leftBtn").ontouchstart = () => moveSanta(-1);
-document.getElementById("rightBtn").ontouchstart = () => moveSanta(1);
+document.addEventListener("keydown", e => {
+  if (e.key === "a" || e.key === "ArrowLeft") moveSanta(-20);
+  if (e.key === "d" || e.key === "ArrowRight") moveSanta(20);
+});
 
-/* 이펙트 */
-function effect(x, y, text, color) {
-  const e = document.createElement("div");
-  e.className = "effect";
-  e.textContent = text;
-  e.style.left = x + "px";
-  e.style.top = y + "px";
-  e.style.color = color;
-  game.appendChild(e);
-  setTimeout(() => e.remove(), 400);
+document.getElementById("left").ontouchstart = () => moveSanta(-25);
+document.getElementById("right").ontouchstart = () => moveSanta(25);
+
+/* 히트박스 */
+function isColliding(item) {
+  const s = santa.getBoundingClientRect();
+  const i = item.getBoundingClientRect();
+  const p = 6;
+  return !(s.right - p < i.left || s.left + p > i.right || s.bottom - p < i.top || s.top + p > i.bottom);
 }
 
-/* 아이템 생성 */
-function createItem(type) {
-  if (!gameRunning) return;
+/* 임팩트 */
+function impact(type) {
+  santa.classList.remove("hit", "shake");
+  santa.classList.add(type === "bomb" || type === "yami" ? "shake" : "hit");
+  setTimeout(() => santa.classList.remove("hit", "shake"), 300);
+}
 
-  const img = document.createElement("img");
-  img.className = "item";
-  img.src = `${type}.png`;
-  img.dataset.type = type;
-  img.style.left = Math.random() * (window.innerWidth - 45) + "px";
-  img.style.top = "-50px";
-  game.appendChild(img);
+/* ===== 아이템 생성 ===== */
+function spawnItem(forceType = null) {
+  if (isGameOver) return;
 
-  let speed = 6;
+  const item = document.createElement("div");
+  item.classList.add("item");
+
+  let type;
+
+  if (forceType) {
+    type = forceType;
+  } else {
+    const r = Math.random();
+    type = "gift";
+    if (r < 0.1) type = "bomb";
+    else if (r < 0.18) type = "cookie";
+    else if (r < 0.22) type = "yami";
+    else if (r < 0.3) type = "star";
+  }
+
+  item.classList.add(type);
+
+  let x = Math.random() * (game.clientWidth - 40);
+  let y = -40;
+  item.style.left = x + "px";
+  item.style.top = y + "px";
+
+  game.appendChild(item);
 
   const fall = setInterval(() => {
-    if (!gameRunning) {
+    if (isGameOver) {
+      item.remove();
       clearInterval(fall);
-      img.remove();
       return;
     }
 
-    img.style.top = img.offsetTop + speed + "px";
+    y += speed;
+    item.style.top = y + "px";
 
-    const s = santa.getBoundingClientRect();
-    const i = img.getBoundingClientRect();
-
-    if (
-      i.bottom > s.top &&
-      i.left < s.right &&
-      i.right > s.left
-    ) {
-      handleItem(type, img);
+    if (isColliding(item)) {
+      applyEffect(type);
+      impact(type);
+      item.remove();
       clearInterval(fall);
-      img.remove();
     }
 
-    if (img.offsetTop > window.innerHeight) {
+    if (y > game.clientHeight) {
+      item.remove();
       clearInterval(fall);
-      img.remove();
     }
   }, 16);
 }
 
-/* 아이템 효과 */
-function handleItem(type, img) {
-  const x = img.offsetLeft;
-  const y = img.offsetTop;
+/* ===== 효과 ===== */
+function applyEffect(type) {
+  let value = 0;
 
-  if (type === "gift") score += doubleScore ? 20 : 10;
-  if (type === "cookie") score += doubleScore ? 100 : 50;
-  if (type === "bomb") score -= doubleScore ? 40 : 20;
-  if (type === "yami") score -= doubleScore ? 120 : 60;
+  if (type === "gift") value = 10;
+  if (type === "cookie") value = 50;
+  if (type === "bomb") value = -30;
+  if (type === "yami") value = -60;
+
+  if (doubleScore) value *= 2;
+  score += value;
+
+  if (type === "time") {
+    timeLeft += 15;
+
+    /* ⭐ 시계 먹었을 때 50% 확률 추가 시계 */
+    if (!extraClockUsed && Math.random() < 0.5) {
+      extraClockUsed = true;
+      setTimeout(() => {
+        spawnItem("time");
+      }, Math.random() * 75000); // 1분 15초 안 랜덤
+    }
+  }
 
   if (type === "star") {
     doubleScore = true;
     setTimeout(() => doubleScore = false, 5000);
-    effect(x, y, "x2", "yellow");
   }
 
-  if (type === "clock") {
-    time += 15;
-    effect(x, y, "+15s", "#00eaff");
-    if (Math.random() < 0.5) {
-      setTimeout(() => createItem("clock"), 75000);
-    }
-  }
-
-  scoreEl.textContent = score;
+  scoreText.textContent = score;
 }
 
-/* 아이템 스폰 */
+/* ===== 타이머 ===== */
 setInterval(() => {
-  if (!gameRunning) return;
-  createItem("gift");
-  if (Math.random() < 0.35) createItem("bomb");
-  if (Math.random() < 0.2) createItem("cookie");
-  if (Math.random() < 0.1) createItem("yami");
-  if (Math.random() < 0.1) createItem("star");
-}, 650);
+  if (isGameOver) return;
 
-/* 시계 고정 스폰 */
-[5, 20, 35, 50].forEach(t => {
-  setTimeout(() => createItem("clock"), t * 1000);
-});
+  timeLeft--;
+  timeText.textContent = timeLeft;
 
-/* 타이머 */
-bgm.volume = 0.4;
-bgm.play();
-
-setInterval(() => {
-  if (!gameRunning) return;
-  time--;
-  timeEl.textContent = time;
-
-  if (time <= 0) {
-    gameRunning = false;
-    document.getElementById("gameOver").style.display = "flex";
-    document.getElementById("finalScore").textContent = `최종 점수: ${score}`;
-    bgm.pause();
+  if (timeLeft <= 0) {
+    isGameOver = true;
+    gameOver.style.display = "flex";
+    finalScore.textContent = score;
   }
+
+  if (timeLeft % 15 === 0) speed += 0.5;
 }, 1000);
+
+/* ===== 시계 강제 스폰 시스템 ===== */
+const clockSchedule = [10, 25, 40, 55]; // 1분 안에 무조건 4개
+
+setInterval(() => {
+  if (isGameOver) return;
+
+  const elapsed = Math.floor((Date.now() - gameStartTime) / 1000);
+
+  if (clockSpawned < 4 && elapsed >= clockSchedule[clockSpawned]) {
+    spawnItem("time");
+    clockSpawned++;
+  }
+}, 500);
+
+/* ===== 눈 ===== */
+function createSnow() {
+  if (isGameOver) return;
+
+  const snow = document.createElement("div");
+  snow.className = "snowflake";
+  const size = Math.random() * 4 + 2;
+  snow.style.width = size + "px";
+  snow.style.height = size + "px";
+  snow.style.left = Math.random() * 100 + "%";
+  const duration = Math.random() * 3 + 4;
+  snow.style.animationDuration = duration + "s";
+
+  snowLayer.appendChild(snow);
+  setTimeout(() => snow.remove(), duration * 1000);
+}
+
+setInterval(createSnow, 200);
+setInterval(() => spawnItem(), 800);
