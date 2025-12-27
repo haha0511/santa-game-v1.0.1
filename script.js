@@ -31,7 +31,7 @@ let santaX = game.clientWidth / 2;
 let score = 0;
 let timeLeft = 60;
 
-/* 🚀 기본 속도 대폭 증가 */
+/* 🚀 아이템 낙하 속도 (이전 설정 유지) */
 let speed = 5;
 
 let doubleScore = false;
@@ -42,7 +42,10 @@ let clockSpawned = 0;
 let extraClockUsed = false;
 let gameStartTime = Date.now();
 
-/* 이동 */
+/* ===============================
+   🏃 산타 이동 (속도만 증가)
+================================ */
+
 function moveSanta(dx) {
   if (isGameOver) return;
   santaX += dx;
@@ -50,15 +53,19 @@ function moveSanta(dx) {
   santa.style.left = santaX + "px";
 }
 
+/* ⌨ PC */
 document.addEventListener("keydown", e => {
-  if (e.key === "a" || e.key === "ArrowLeft") moveSanta(-20);
-  if (e.key === "d" || e.key === "ArrowRight") moveSanta(20);
+  if (e.key === "a" || e.key === "ArrowLeft") moveSanta(-35);
+  if (e.key === "d" || e.key === "ArrowRight") moveSanta(35);
 });
 
-document.getElementById("left").ontouchstart = () => moveSanta(-25);
-document.getElementById("right").ontouchstart = () => moveSanta(25);
+/* 📱 모바일 */
+document.getElementById("left").ontouchstart = () => moveSanta(-40);
+document.getElementById("right").ontouchstart = () => moveSanta(40);
 
-/* 히트박스 */
+/* ===============================
+   🎯 히트박스 (변경 없음)
+================================ */
 function isColliding(item) {
   const s = santa.getBoundingClientRect();
   const i = item.getBoundingClientRect();
@@ -78,7 +85,9 @@ function impact(type) {
   setTimeout(() => santa.classList.remove("hit", "shake"), 300);
 }
 
-/* 아이템 생성 */
+/* ===============================
+   🎁 아이템 생성
+================================ */
 function spawnItem(forceType = null) {
   if (isGameOver) return;
 
@@ -114,7 +123,6 @@ function spawnItem(forceType = null) {
       return;
     }
 
-    /* 🚀 초고속 낙하 */
     y += speed;
     item.style.top = y + "px";
 
@@ -132,7 +140,9 @@ function spawnItem(forceType = null) {
   }, 16);
 }
 
-/* 효과 */
+/* ===============================
+   ✨ 아이템 효과
+================================ */
 function applyEffect(type) {
   let value = 0;
 
@@ -161,7 +171,9 @@ function applyEffect(type) {
   scoreText.textContent = score;
 }
 
-/* ⏱ 타이머 + 폭주 가속 */
+/* ===============================
+   ⏱ 타이머 & 가속
+================================ */
 setInterval(() => {
   if (isGameOver) return;
 
@@ -174,11 +186,10 @@ setInterval(() => {
     finalScore.textContent = score;
   }
 
-  /* 🚀 10초마다 속도 급상승 */
   if (timeLeft % 10 === 0) speed += 1.5;
 }, 1000);
 
-/* ⏰ 시계 고정 스폰 */
+/* ⏰ 시계 스폰 */
 const clockSchedule = [10, 25, 40, 55];
 
 setInterval(() => {
@@ -191,7 +202,7 @@ setInterval(() => {
   }
 }, 500);
 
-/* ❄ 눈 */
+/* ❄ 눈 애니메이션 */
 function createSnow() {
   if (isGameOver) return;
 
