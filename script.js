@@ -51,8 +51,8 @@ function moveSanta(dx) {
 }
 
 document.addEventListener("keydown", e => {
-  if (e.key === "a" || e.key === "ArrowLeft") moveSanta(-25);
-  if (e.key === "d" || e.key === "ArrowRight") moveSanta(25);
+  if (e.key === "a" || e.key === "ArrowLeft") moveSanta(-20);
+  if (e.key === "d" || e.key === "ArrowRight") moveSanta(20);
 });
 
 document.getElementById("left").ontouchstart = () => moveSanta(-25);
@@ -207,4 +207,5 @@ function createSnow() {
 
 setInterval(createSnow, 200);
 setInterval(() => spawnItem(), 800);
+
 
