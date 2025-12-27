@@ -1,170 +1,99 @@
-* {
+html, body {
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
-  touch-action: none;
+  overflow: hidden;
+  background: #00111f;
+  font-family: Arial, sans-serif;
 }
 
-body {
-  background: #111;
-  display: flex;
-  justify-content: center;
-}
-
-/* 게임 영역 */
 #game {
   position: relative;
-  width: 100%;
-  max-width: 420px;
-  height: 90vh;
+  width: 100vw;
+  height: 100vh;
   overflow: hidden;
-  background: linear-gradient(#1c3b70, #87ceeb);
 }
 
-/* ===== 배경 ===== */
-#background {
+/* 눈 배경 */
+.snow {
   position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-}
-
-/* 구름 */
-#clouds {
-  position: absolute;
-  inset: 0;
-  background: url("images/cloud.png") repeat-x;
-  background-size: 200px;
-  animation: cloudMove 60s linear infinite;
-  opacity: 0.7;
-}
-
-@keyframes cloudMove {
-  from { background-position-x: 0; }
-  to { background-position-x: -1000px; }
-}
-
-/* 나무 */
-#trees {
-  position: absolute;
-  bottom: 40px;
-  width: 200%;
-  height: 120px;
-  background: url("images/tree.png") repeat-x;
-  background-size: contain;
-  animation: treeMove 90s linear infinite;
+  top: -10px;
+  color: white;
+  animation: fall linear infinite;
   opacity: 0.8;
 }
 
-@keyframes treeMove {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
+@keyframes fall {
+  to {
+    transform: translateY(110vh);
+  }
 }
 
-/* 눈 */
-#snow {
-  position: absolute;
-  inset: 0;
-}
-
-/* ===== 산타 ===== */
+/* 산타 */
 #santa {
   position: absolute;
-  bottom: 60px;
-  width: 60px;
+  bottom: 20px;
+  width: 70px;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 3;
 }
 
-/* ===== 아이템 ===== */
+/* 아이템 */
 .item {
   position: absolute;
-  width: 40px;
-  height: 40px;
-  background-size: cover;
-  z-index: 2;
+  width: 45px;
 }
-
-.gift   { background-image: url("images/gift.png"); }
-.cookie { background-image: url("images/cookie.png"); }
-.bomb   { background-image: url("images/bomb.png"); }
-.time   { background-image: url("images/time.png"); }
-.yami   { background-image: url("images/yami.png"); }
-.star   { background-image: url("images/star.png"); }
 
 /* UI */
 #ui {
   position: absolute;
   top: 10px;
   left: 10px;
-  font-weight: bold;
   color: white;
-  z-index: 5;
+  font-size: 18px;
+  z-index: 10;
 }
 
 /* 모바일 버튼 */
-#controls {
+.control {
   position: absolute;
-  bottom: 10px;
-  width: 100%;
+  bottom: 20px;
+  width: 80px;
+  height: 80px;
+  background: rgba(255,255,255,0.2);
+  color: white;
+  font-size: 40px;
+  border-radius: 50%;
   display: flex;
-  justify-content: space-around;
-  z-index: 5;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
 }
 
-#controls button {
-  width: 45%;
-  height: 50px;
-  font-size: 24px;
+#leftBtn { left: 20px; }
+#rightBtn { right: 20px; }
+
+/* 이펙트 */
+.effect {
+  position: absolute;
+  font-size: 20px;
+  animation: pop 0.4s ease-out forwards;
 }
 
-/* 게임 종료 */
+@keyframes pop {
+  from { transform: scale(0.5); opacity: 1; }
+  to { transform: scale(1.3); opacity: 0; }
+}
+
+/* 종료 화면 */
 #gameOver {
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0.85);
+  background: rgba(0,0,0,0.8);
   color: white;
   display: none;
-  z-index: 10;
-  flex-direction: column;
-  justify-content: center;
   align-items: center;
-}
-
-/* 임팩트 */
-.hit {
-  animation: pop 0.2s;
-}
-@keyframes pop {
-  0% { transform: translateX(-50%) scale(1); }
-  50% { transform: translateX(-50%) scale(1.3); }
-  100% { transform: translateX(-50%) scale(1); }
-}
-
-.shake {
-  animation: shake 0.25s;
-}
-@keyframes shake {
-  0% { transform: translateX(-50%); }
-  25% { transform: translateX(-55%); }
-  50% { transform: translateX(-45%); }
-  75% { transform: translateX(-55%); }
-  100% { transform: translateX(-50%); }
-}
-
-/* 눈송이 */
-.snowflake {
-  position: absolute;
-  top: -10px;
-  background: white;
-  border-radius: 50%;
-  opacity: 0.8;
-  animation: fall linear forwards;
-}
-
-@keyframes fall {
-  to {
-    transform: translateY(100vh);
-  }
+  justify-content: center;
+  flex-direction: column;
+  font-size: 24px;
+  z-index: 20;
 }
